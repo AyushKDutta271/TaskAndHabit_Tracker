@@ -1,20 +1,72 @@
 package userInterface;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import java.util.Scanner;
-
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import operation.BusinessLogic;
 import pojo.Priority;
 import pojo.Task;
 
 public class View {
-	
-	public static void main(String[] args)
+final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
+final Runnable task=()->
+		{
+			//autosave-logic
+			autosave();
+			System.out.println("File saved successfully!");
+		};
+	public void start()
 	{
+		this.executor.scheduleAtFixedRate(task, 0, 3, TimeUnit.SECONDS);
+
+	}
+
+	public void end()
+	{
+		try{
+			this.executor.awaitTermination(3, TimeUnit.SECONDS);
+		}
+		catch(InterruptedException ex)
+		{
+			if(Thread.interrupted())
+			{
+				System.out.println("failed to save the file");
+			}
+		}
+		
+	}
+
+
+	public static void autosave()
+	{
+		File file = new File("src\\file.txt");
+		try{
+			if(file.createNewFile())
+			{
+				System.out.println("File was not existed before...Now it's created!");
+			}
+		}
+		catch(IOException ex)
+		{
+			ex.printStackTrace();
+		}
+		
+		List<Task> tasks= BusinessLogic.tasks;
+		List<String> habits=BusinessLogic.habits;
+
+
+
+	}
+	public static void main(String[] args)
+	{	
 		Scanner sc = new Scanner(System.in);
 		while(true)
 		{
