@@ -4,8 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -14,25 +15,38 @@ import java.util.concurrent.TimeUnit;
 import operation.BusinessLogic;
 import pojo.Priority;
 import pojo.Task;
+// import jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+
 
 public class View {
-final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
+static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
 final Runnable task=()->
 		{
-			//autosave-logic
 			autosave();
 			System.out.println("File saved successfully!");
 		};
+
+final Runnable notification=()->
+{
+	List<Task> tasks=BusinessLogic.tasks;
+	tasks.stream().filter(t->t.getDueDate().isEqual(LocalDate.now())).toList().forEach(t->System.out.println(t));
+};
+
+public void getNotification()
+{
+	System.out.println("**************NOTIFICATION(Near due tasks!)***********");
+	executor.schedule(notification, 5, TimeUnit.SECONDS);
+}
 	public void start()
 	{
-		this.executor.scheduleAtFixedRate(task, 0, 3, TimeUnit.SECONDS);
-
+		executor.scheduleAtFixedRate(task, 1, 5, TimeUnit.SECONDS);
 	}
 
 	public void end()
 	{
 		try{
-			this.executor.awaitTermination(3, TimeUnit.SECONDS);
+			executor.awaitTermination(5, TimeUnit.MILLISECONDS);
 		}
 		catch(InterruptedException ex)
 		{
@@ -41,32 +55,47 @@ final Runnable task=()->
 				System.out.println("failed to save the file");
 			}
 		}
-		
+		System.out.println("Autosave task ended!");
 	}
 
 
 	public static void autosave()
 	{
-		File file = new File("src\\file.txt");
+		File file = new File("src\\file.json");
 		try{
 			if(file.createNewFile())
 			{
 				System.out.println("File was not existed before...Now it's created!");
 			}
+
+			List<Task> tasks= BusinessLogic.tasks;
+		List<String> habits=BusinessLogic.habits;
+
+		ObjectMapper mapper = new ObjectMapper();
+		
+		Map<String,Object> map = new HashMap<>();
+
+		
+			map.put("tasks",tasks);
+			map.put("habits",habits);
+
+						
+			mapper.writerWithDefaultPrettyPrinter().writeValue(file, map);
 		}
 		catch(IOException ex)
 		{
 			ex.printStackTrace();
 		}
 		
-		List<Task> tasks= BusinessLogic.tasks;
-		List<String> habits=BusinessLogic.habits;
-
-
-
+		
+		
 	}
+
 	public static void main(String[] args)
 	{	
+		View obj = new View();
+		obj.start();
+		
 		Scanner sc = new Scanner(System.in);
 		while(true)
 		{
@@ -181,7 +210,10 @@ final Runnable task=()->
 			default: System.out.println("Invalid Choice!");
 			
 			}
+			obj.getNotification();
+			obj.end();
 		}
+		
 	}
 
 }
