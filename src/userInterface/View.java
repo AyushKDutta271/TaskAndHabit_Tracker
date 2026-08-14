@@ -23,8 +23,17 @@ public class View {
 static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
 final Runnable task=()->
 		{
+			try{
+			System.out.println("before autosave!"+Thread.currentThread().getName());
 			autosave();
+			System.out.println("after autosave");
 			System.out.println("File saved successfully!");
+			System.out.println(Thread.currentThread().getName()+Thread.currentThread().getName());
+			}
+			catch(Exception ex)
+			{
+				System.out.println(ex.getMessage());
+			}
 		};
 
 final Runnable notification=()->
@@ -45,7 +54,7 @@ int i=0;
 	{
 		
 		executor.scheduleAtFixedRate(task, 1, 5, TimeUnit.SECONDS);
-		System.out.println(Thread.currentThread().getName()+" saving iteration: "+(++i)); //this is not executed, then how after 5 secs it executes task without reaching here
+		System.out.println(Thread.currentThread().getName()+" saving iteration: "+(++i)); 
 	}
 
 	public void end()
@@ -76,31 +85,38 @@ int i=0;
 				System.out.println("File was not existed before...Now it's created!");
 			}
 
+			System.out.println("1");
 			List<Task> tasks= BusinessLogic.tasks;
+			System.out.println("2");
 			if(tasks.isEmpty())
 			{
+				System.out.println("3");
 				System.out.println("No tasks and habits to save!...");
 				
 			}
-			else						//when task is added, any statements still doesn't execute from here! 
+			else						 
 			{
+				System.out.println("4");
 				System.out.println("tasks size is: "+tasks.size());
 			}
+
+			System.out.println("5");
 		List<String> habits=BusinessLogic.habits;
 
-		ObjectMapper mapper = new ObjectMapper();
-		
+		System.out.println("This is before serialization"+Thread.currentThread().getName());
+		ObjectMapper mapper = new ObjectMapper();      //issue seems to be here!
+		System.out.println("This is during serialization"+Thread.currentThread().getName());
 		Map<String,Object> map = new HashMap<>();
 
 		
 			map.put("tasks",tasks);
 			map.put("habits",habits);
 
-			System.out.println("Saving file....");
+			System.out.println("Saving file...."+Thread.currentThread().getName());
 			mapper.writerWithDefaultPrettyPrinter().writeValue(file, map);
-			System.out.println("file saved!");
+			System.out.println("file saved!"+Thread.currentThread().getName());
 		}
-		catch(IOException ex)
+		catch(Exception ex)
 		{
 			ex.printStackTrace();
 		}
@@ -126,6 +142,7 @@ int i=0;
 			int num = sc.nextInt();
 		while(num!=4)
 		{
+			
 			
 			
 			switch(num)
@@ -231,6 +248,14 @@ int i=0;
 			default: System.out.println("Invalid Choice!");
 			
 			}
+
+			System.out.println("1. View-Section");
+			System.out.println("2. Create-Section");
+			System.out.println("3. History");
+			System.out.println("4. Exit?!");
+			
+			System.out.println("Enter a Number: ");
+			num = sc.nextInt();
 			
 		}
 		executor.shutdown();
