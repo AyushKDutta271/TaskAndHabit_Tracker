@@ -29,13 +29,14 @@ final Runnable task=()->
 
 final Runnable notification=()->
 {
+	System.out.println("**************NOTIFICATION(Near due tasks!)***********");
 	List<Task> tasks=BusinessLogic.tasks;
 	tasks.stream().filter(t->t.getDueDate().isEqual(LocalDate.now())).toList().forEach(t->System.out.println(t));
 };
 
 public void getNotification()
 {
-	System.out.println("**************NOTIFICATION(Near due tasks!)***********");
+	
 	executor.schedule(notification, 5, TimeUnit.SECONDS);
 }
 	public void start()
@@ -211,7 +212,7 @@ public void getNotification()
 			
 			}
 			obj.getNotification();
-			obj.end();
+			// obj.end();
 		}
 		
 	}
