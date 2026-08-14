@@ -17,6 +17,7 @@ public class BusinessLogic {
 
 	public static List<Task> tasks=new ArrayList<>();
 	public static List<String> habits=new ArrayList<>();
+
 	static AtomicInteger atomic = new AtomicInteger();
 	public static void addTask(Task task)
 	{

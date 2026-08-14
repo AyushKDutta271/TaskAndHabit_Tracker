@@ -39,15 +39,21 @@ public void getNotification()
 	
 	executor.schedule(notification, 5, TimeUnit.SECONDS);
 }
+
+int i=0;
 	public void start()
 	{
+		
 		executor.scheduleAtFixedRate(task, 1, 5, TimeUnit.SECONDS);
+		System.out.println(Thread.currentThread().getName()+" saving iteration: "+(++i)); //this is not executed, then how after 5 secs it executes task without reaching here
 	}
 
 	public void end()
 	{
 		try{
-			executor.awaitTermination(5, TimeUnit.MILLISECONDS);
+			executor.awaitTermination(5, TimeUnit.SECONDS);
+			if(!executor.isShutdown())
+				executor.shutdownNow();
 		}
 		catch(InterruptedException ex)
 		{
@@ -63,6 +69,7 @@ public void getNotification()
 	public static void autosave()
 	{
 		File file = new File("src\\file.json");
+		System.out.println("file path: "+file.getAbsolutePath());
 		try{
 			if(file.createNewFile())
 			{
@@ -70,6 +77,15 @@ public void getNotification()
 			}
 
 			List<Task> tasks= BusinessLogic.tasks;
+			if(tasks.isEmpty())
+			{
+				System.out.println("No tasks and habits to save!...");
+				
+			}
+			else						//when task is added, any statements still doesn't execute from here! 
+			{
+				System.out.println("tasks size is: "+tasks.size());
+			}
 		List<String> habits=BusinessLogic.habits;
 
 		ObjectMapper mapper = new ObjectMapper();
@@ -80,8 +96,9 @@ public void getNotification()
 			map.put("tasks",tasks);
 			map.put("habits",habits);
 
-						
+			System.out.println("Saving file....");
 			mapper.writerWithDefaultPrettyPrinter().writeValue(file, map);
+			System.out.println("file saved!");
 		}
 		catch(IOException ex)
 		{
@@ -96,7 +113,7 @@ public void getNotification()
 	{	
 		View obj = new View();
 		obj.start();
-		
+		obj.getNotification();
 		Scanner sc = new Scanner(System.in);
 		while(true)
 		{
@@ -211,8 +228,8 @@ public void getNotification()
 			default: System.out.println("Invalid Choice!");
 			
 			}
-			obj.getNotification();
-			// obj.end();
+			executor.shutdown();
+			obj.end();
 		}
 		
 	}
