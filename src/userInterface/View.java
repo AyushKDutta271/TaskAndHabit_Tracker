@@ -115,16 +115,18 @@ int i=0;
 		obj.start();
 		obj.getNotification();
 		Scanner sc = new Scanner(System.in);
-		while(true)
-		{
-			System.out.println("Hey! What you want see today!");
+		System.out.println("Hey! What you want see today!");
 			
 			System.out.println("1. View-Section");
 			System.out.println("2. Create-Section");
 			System.out.println("3. History");
+			System.out.println("4. Exit?!");
 			
 			System.out.println("Enter a Number: ");
 			int num = sc.nextInt();
+		while(num!=4)
+		{
+			
 			
 			switch(num)
 			{
@@ -141,6 +143,7 @@ int i=0;
 					System.out.println("h Filter Tasks:");
 				  	break;
 				  	
+			case 4: return;
 			default : System.out.println("Invalid choice!");
 					 
 			}
@@ -228,10 +231,18 @@ int i=0;
 			default: System.out.println("Invalid Choice!");
 			
 			}
-			executor.shutdown();
-			obj.end();
+			
 		}
-		
+		executor.shutdown();
+			obj.end();
 	}
 
 }
+
+
+
+
+
+
+
+
